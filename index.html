@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mentor Online – Guarda Municipal (Fadesp)</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1c2430;--mu:#6b7686;--bd:#dde2e9;--ac:#2f5bd3;--ok:#1f9d55;--okb:#e3f6ea;--er:#d64545;--erb:#fdeaea;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1b222b;--tx:#e8ecf2;--mu:#98a3b3;--bd:#2c3644;--ac:#6f93f5;--ok:#4cc783;--okb:#173325;--er:#ef7878;--erb:#3a1e1e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161c;--card:#1b222b;--tx:#e8ecf2;--mu:#98a3b3;--bd:#2c3644;--ac:#6f93f5;--ok:#4cc783;--okb:#173325;--er:#ef7878;--erb:#3a1e1e;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.35rem;margin:8px 0 4px}
+.mu{color:var(--mu);font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
+.drop{display:block;border:2px dashed var(--bd);border-radius:14px;padding:22px 12px;text-align:center;cursor:pointer;font-weight:600;color:var(--ac)}
+input[type=file]{display:none}
+input[type=text],input[type=password],input[type=number],select{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font:inherit;margin:4px 0 8px}
+textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font:inherit;min-height:70px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:600;width:100%;margin-top:8px}
+.btn.sec{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;margin-top:12px}.row .btn{margin-top:0}
+.prog{height:8px;background:var(--bd);border-radius:6px;overflow:hidden}
+#bar{height:100%;width:0;background:var(--ac);transition:width .3s}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;margin:8px 0}
+.top .btn{width:auto;margin:0}
+.tag{color:var(--mu);font-size:.85rem;margin-bottom:8px}
+.enun{white-space:pre-wrap;margin-bottom:12px}
+.tx{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px;max-height:38vh;overflow:auto;white-space:pre-wrap;font-size:.95rem;margin-bottom:12px}
+.opt{display:flex;gap:10px;width:100%;text-align:left;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin:8px 0}
+.opt b{min-width:1.4em}
+.opt.ok{background:var(--okb);border-color:var(--ok)}
+.opt.er{background:var(--erb);border-color:var(--er)}
+.cm{border-left:4px solid var(--ac);padding-left:12px;margin-top:14px;white-space:pre-wrap}
+.big{font-size:3rem;font-weight:800;text-align:center;margin:0}
+.grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dot{width:38px;height:38px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.dot.ok{background:var(--okb);border-color:var(--ok)}.dot.er{background:var(--erb);border-color:var(--er)}
+.lr{display:flex;align-items:center;gap:10px;padding:10px 12px}.lr span{flex:1}.lr input{width:20px;height:20px}.lr .btn{width:auto;margin:0}
+.pdr{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--bd)}
+.hid{display:none!important}
+</style></head><body><main>
+
+<section id="home">
+<h1>Mentor Online · Guarda Municipal</h1>
+<p class="mu">Banca Fadesp. Suba o PDF só com as questões: o Gemini gera o gabarito e o comentário de cada uma.</p>
+
+<div class="card">
+<label class="mu">Chave da API do Gemini (fica só neste aparelho)</label>
+<input type="password" id="key" placeholder="Cole a chave do Google AI Studio" autocomplete="off">
+<label class="mu">Modelo</label>
+<input type="text" id="mod" value="gemini-2.5-flash">
+</div>
+
+<label class="drop" for="f">Escolher PDFs ou ZIP com as questões</label>
+<input type="file" id="f" accept="application/pdf,.zip,application/zip" multiple>
+<p id="st" class="mu"></p>
+
+<div id="lib" class="hid">
+<div id="ll"></div>
+<div class="card">
+<label class="mu">Questões por arquivo (vazio = todas)</label><input type="number" id="nq" min="1">
+<label class="mu"><input type="checkbox" id="sh" checked> Embaralhar</label>
+</div>
+<button class="btn" id="gb"></button>
+<button class="btn sec" id="stp">Parar geração</button>
+<button class="btn" id="go"></button>
+<button class="btn sec" id="er"></button>
+<p class="mu">⚠ Gabaritos e comentários gerados por IA podem errar. Em caso de dúvida, confira na lei/fonte; dá para trocar o gabarito na tela da questão.</p>
+</div>
+</section>
+
+<section id="qz" class="hid">
+<div class="prog"><div id="bar"></div></div>
+<div class="top"><span id="sc"></span><button class="btn sec" id="fin">Finalizar</button></div>
+<div class="card" id="card"></div>
+<div class="row"><button class="btn sec" id="pv">← Anterior</button><button class="btn" id="nx">Próxima →</button></div>
+</section>
+
+<section id="rs" class="hid">
+<h1>Seu rendimento</h1>
+<div class="card"><p class="big" id="pc"></p><p class="mu" style="text-align:center" id="dt"></p>
+<div class="grid" id="gr"></div><div id="pd" style="margin-top:12px"></div></div>
+<div class="row"><button class="btn" id="re">Refazer erros</button><button class="btn sec" id="bk">Biblioteca</button></div>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}catch(e){}
+
+let LIB=ld('lib',[]),HIST=ld('hist',{}),Q=[],A={},i=0,stop=false;
+$('#key').value=ld('gkey','');$('#mod').value=ld('gmod','gemini-2.5-flash');
+$('#key').onchange=()=>sv('gkey',$('#key').value.trim());
+$('#mod').onchange=()=>sv('gmod',$('#mod').value.trim());
+const SEC=['home','qz','rs'];
+const show=id=>SEC.forEach(x=>$('#'+x).classList.toggle('hid',x!==id));
+const msg=t=>$('#st').textContent=t;
+const save=()=>sv('lib',LIB);
+
+/* ---------- leitura do PDF ---------- */
+async function pageLines(p){
+  const c=await p.getTextContent(),L=[];let y=null,l='',ly=0;
+  for(const it of c.items){const yy=it.transform[5];
+    if(y!==null&&Math.abs(yy-y)>3){L.push({t:l.trim(),y:ly});l=''}
+    if(l==='')ly=yy;y=yy;l+=it.str+' '}
+  L.push({t:l.trim(),y:ly});return L.filter(x=>x.t);
+}
+function clean(P){
+  const cnt={};P.forEach(p=>new Set(p.map(x=>x.t)).forEach(t=>cnt[t]=(cnt[t]||0)+1));
+  const noise=t=>/^\d+\s*(de|\/)\s*\d+$|^p[áa]gina\s*\d+/i.test(t)||(P.length>=4&&cnt[t]>=3&&cnt[t]>=P.length*.4);
+  return P.flatMap(p=>{
+    const k=p.filter(x=>!noise(x.t));
+    const g=k.slice(1).map((x,j)=>k[j].y-x.y).sort((a,b)=>a-b),med=g.length?g[g.length>>1]:0;
+    const o=['§'];k.forEach((x,j)=>{if(j&&med>0&&k[j-1].y-x.y>med*1.6)o.push('§');o.push(x.t)});return o});
+}
+function blk(b){
+  const e=[],o=[],t=[];let k=0,tail=false;
+  for(const ln of b.l){
+    if(tail){if(ln!=='§')t.push(ln);continue}
+    if(ln==='§'){if(k===5)tail=true;continue}
+    const m=ln.match(/^\(?([A-Ea-e])\s*[)\].\-–]\s*(.*)$/);
+    if(m&&m[1].toUpperCase()==='ABCDE'[k]){o.push({k:m[1].toUpperCase(),t:m[2]});k++}
+    else if(k)o[k-1].t+=' '+ln;else e.push(ln);
+  }
+  return{n:b.n,e:e.join(' ').trim(),o:k>=2?o:[],tail:t.join(' ').trim()};
+}
+function parse(L){
+  const word=L.some(l=>/^quest[ãa]o\s*0*1\b/i.test(l)),r=/^(quest[ãa]o\s*)?0*(\d{1,3})\s*([.)\-–:])?\s*(.*)$/i;
+  const raw=[],pre=[];let c=null,exp=1;
+  for(const ln of L){
+    const m=ln!=='§'&&ln.match(r);
+    if(m&&+m[2]===exp&&(word?m[1]:(m[1]||m[3]))){c={n:exp++,l:m[4]?[m[4]]:[]};raw.push(c)}
+    else if(c)c.l.push(ln);else if(ln!=='§')pre.push(ln);
+  }
+  const B=raw.map(blk);
+  let cur=null;
+  const setCur=(t,n)=>{if(t.length<100)return;const m=t.match(/quest[õo]es?\s*(\d+)\s*(?:a|à|e|ao|até|-)\s*(\d+)/i);cur={t,a:m?+m[1]:n,b:m?+m[2]:n}};
+  setCur(pre.join(' '),1);
+  return B.filter(q=>q.o.length).map(q=>{
+    const x={n:q.n,e:q.e,o:q.o,tx:(cur&&q.n>=cur.a&&q.n<=cur.b)?cur.t:'',c:null,m:''};
+    setCur(q.tail,q.n+1);return x;
+  });
+}
+async function expand(files){
+  const out=[];
+  for(const f of files){
+    if(/\.zip$/i.test(f.name)){
+      const z=await JSZip.loadAsync(await f.arrayBuffer());
+      Object.values(z.files).filter(x=>!x.dir&&/\.pdf$/i.test(x.name)&&!/__MACOSX/.test(x.name)).forEach(x=>out.push({name:x.name.split('/').pop(),arrayBuffer:()=>x.async('arraybuffer')}));
+    }else out.push(f);
+  }
+  return out;
+}
+$('#f').onchange=async e=>{
+  const list=[...e.target.files];e.target.value='';
+  try{
+    for(const f of await expand(list)){
+      const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,P=[];
+      for(let n=1;n<=pdf.numPages;n++){P.push(await pageLines(await pdf.getPage(n)));msg(f.name+': página '+n+'/'+pdf.numPages)}
+      const qs=parse(clean(P)),d=f.name.replace(/\.pdf$/i,'');
+      if(!qs.length){msg(f.name+': nenhuma questão identificada (o PDF é escaneado/imagem?)');continue}
+      LIB=LIB.filter(x=>x.d!==d);LIB.push({d,on:true,qs});
+      msg(d+': '+qs.length+' questões lidas.');
+    }
+  }catch(err){msg('Erro: '+err.message)}
+  renderLib();
+};
+
+/* ---------- Gemini ---------- */
+async function gem(prompt){
+  const key=$('#key').value.trim(),mod=$('#mod').value.trim()||'gemini-2.5-flash';
+  for(let t=0;t<4;t++){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+mod+':generateContent',{
+      method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.2,responseMimeType:'application/json'}})});
+    if(r.status===429||r.status===503){await new Promise(s=>setTimeout(s,4000*(t+1)));continue}
+    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||r.status);
+    const x=(j.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('');
+    return JSON.parse(x.replace(/```json|```/g,'').trim());
+  }
+  throw new Error('limite de uso da API; tente de novo em instantes');
+}
+const rawQ=q=>(q.tx?'[TEXTO-BASE]\n'+q.tx.slice(0,3000)+'\n':'')+q.e+'\n'+q.o.map(o=>o.k+') '+o.t).join('\n');
+const pend=()=>LIB.filter(x=>x.on).flatMap(x=>x.qs).filter(q=>!q.c&&!q.fail);
+async function gen(){
+  if(!$('#key').value.trim()){msg('Cole a chave do Gemini primeiro.');return}
+  stop=false;const P=pend();
+  for(let s=0;s<P.length&&!stop;s+=5){
+    const B=P.slice(s,s+5);msg('Gerando gabaritos… '+s+' de '+P.length);
+    const prompt=`Você é professor de concursos, especialista na banca Fadesp, cargo Guarda Municipal. Para cada questão abaixo, informe a alternativa correta e um comentário didático curto (3 a 5 frases) dizendo por que ela está certa e por que as demais estão erradas. Em Direito, cite a lei/artigo apenas se tiver certeza; não invente dispositivos. Se a questão depender de texto ou imagem ausente, ou for ambígua, use "c":null e explique em "m". Responda SOMENTE um array JSON: [{"id":0,"c":"A","m":"comentário"}].\n\n`+B.map((q,k)=>'### id '+k+'\n'+rawQ(q)).join('\n\n');
+    try{
+      const R=await gem(prompt);
+      B.forEach((q,k)=>{const r=(Array.isArray(R)?R:[]).find(x=>+x.id===k);
+        if(r&&/^[A-E]$/i.test(r.c||'')&&q.o.some(o=>o.k===r.c.toUpperCase())){q.c=r.c.toUpperCase();q.ai=1}else q.fail=1;
+        if(r&&r.m)q.m=r.m});
+    }catch(err){msg('Erro: '+err.message);save();renderLib();return}
+    save();renderLib();
+  }
+  msg(stop?'Geração interrompida.':'Gabaritos gerados.');
+}
+$('#gb').onclick=gen;$('#stp').onclick=()=>{stop=true};
+
+/* ---------- histórico e biblioteca ---------- */
+const key=q=>q.d+':'+q.n,hs=q=>HIST[key(q)]||{t:0,h:0};
+const rec=(q,ok)=>{const x=HIST[key(q)]||(HIST[key(q)]={t:0,h:0});x.t++;x.l=ok?1:0;if(ok)x.h++;sv('hist',HIST)};
+const stat=q=>{const x=hs(q);return !x.t?'nr':(x.l?'ok':'er')};
+const ready=()=>LIB.filter(x=>x.on).flatMap(x=>x.qs.map(q=>(q.d=x.d,q))).filter(q=>q.c);
+function shuf(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}}
+function renderLib(){
+  save();const ll=$('#ll');ll.innerHTML='';
+  $('#lib').classList.toggle('hid',!LIB.length);
+  LIB.forEach(x=>{
+    const r=E('div','card lr'),cb=E('input');cb.type='checkbox';cb.checked=x.on;
+    cb.onchange=()=>{x.on=cb.checked;renderLib()};
+    const ok=x.qs.filter(q=>q.c).length,fl=x.qs.filter(q=>q.fail).length;
+    const del=E('button','btn sec','✕');del.onclick=()=>{LIB=LIB.filter(y=>y!==x);renderLib()};
+    r.append(cb,E('span','',x.d+' · '+x.qs.length+' questões · '+ok+' com gabarito'+(fl?' · '+fl+' sem resposta':'')),del);ll.append(r);
+  });
+  const p=pend().length,n=ready().length,w=ready().filter(q=>stat(q)==='er').length;
+  $('#gb').textContent='Gerar gabaritos e comentários ('+p+' pendentes)';$('#gb').disabled=!p;
+  $('#go').textContent='Iniciar simulado ('+n+' questões)';$('#go').disabled=!n;
+  $('#er').textContent='Só as que errei ('+w+')';$('#er').disabled=!w;
+}
+function begin(list){const n=+$('#nq').value||0;
+  if(n){const by={};list=list.filter(q=>(by[q.d]=(by[q.d]||0)+1)<=n)}
+  if($('#sh').checked)shuf(list);
+  Q=list;A={};i=0;show('qz');render();}
+$('#go').onclick=()=>begin(ready());
+$('#er').onclick=()=>begin(ready().filter(q=>stat(q)==='er'));
+
+/* ---------- quiz ---------- */
+function stats(){
+  const done=Object.keys(A).length,hit=Object.keys(A).filter(k=>A[k]===Q[k].c).length;
+  $('#bar').style.width=(done/Q.length*100)+'%';
+  $('#sc').textContent='✔ '+hit+'  ✖ '+(done-hit)+'  ·  '+(done?Math.round(hit/done*100):0)+'%';
+}
+function render(){
+  const q=Q[i],a=A[i],c=$('#card');c.innerHTML='';stats();
+  c.append(E('div','tag',q.d+' · Questão '+q.n+' · '+(i+1)+' de '+Q.length));
+  if(q.tx)c.append(E('div','tag','Texto-base'),E('div','tx',q.tx));
+  c.append(E('div','enun',q.e));
+  q.o.forEach(o=>{
+    const b=E('button','opt');b.append(E('b','',o.k),E('span','',o.t));
+    if(a){b.disabled=true;if(o.k===q.c)b.classList.add('ok');else if(o.k===a)b.classList.add('er')}
+    else b.onclick=()=>{A[i]=o.k;rec(q,o.k===q.c);render()};
+    c.append(b);
+  });
+  if(a){
+    const d=E('div','cm');
+    d.append(E('b','',(a===q.c?'Correto! ':'Errado. ')+'Gabarito: '+q.c+(q.ai?' (gerado por IA)':'')));
+    if(q.m)d.append(E('div','',q.m));
+    c.append(d);
+    const s=E('select');s.append(new Option('Discordo do gabarito: trocar para…',''));
+    q.o.forEach(o=>s.append(new Option(o.k,o.k)));
+    s.onchange=()=>{if(!s.value)return;LIB.forEach(x=>x.qs.forEach(z=>{if(z===q||(x.d===q.d&&z.n===q.n))z.c=s.value,z.ai=0}));q.c=s.value;q.ai=0;save();render()};
+    c.append(s);
+  }
+  $('#pv').disabled=i===0;
+  $('#nx').textContent=i===Q.length-1?'Finalizar':'Próxima →';
+}
+$('#pv').onclick=()=>{if(i>0){i--;render()}};
+$('#nx').onclick=()=>{if(i<Q.length-1){i++;render()}else finish()};
+$('#fin').onclick=finish;
+function finish(){
+  const done=Object.keys(A).length,hit=Object.keys(A).filter(k=>A[k]===Q[k].c).length;
+  $('#pc').textContent=(done?Math.round(hit/done*100):0)+'%';
+  $('#dt').textContent=hit+' acertos · '+(done-hit)+' erros · '+(Q.length-done)+' em branco';
+  const g=$('#gr');g.innerHTML='';
+  Q.forEach((q,k)=>{const b=E('button','dot'+(A[k]?(A[k]===q.c?' ok':' er'):''),q.n);b.onclick=()=>{i=k;show('qz');render()};g.append(b)});
+  const pd=$('#pd');pd.innerHTML='';const D={};
+  Q.forEach((q,k)=>{const x=D[q.d]=D[q.d]||{t:0,h:0,a:0};x.t++;if(A[k]){x.a++;if(A[k]===q.c)x.h++}});
+  Object.keys(D).forEach(d=>{const x=D[d],r=E('div','pdr');r.append(E('span','',d),E('b','',x.h+'/'+x.t+' · '+(x.a?Math.round(x.h/x.a*100):0)+'%'));pd.append(r)});
+  show('rs');
+}
+$('#re').onclick=()=>{const w=Q.filter((q,k)=>A[k]&&A[k]!==q.c);if(w.length){Q=w;A={};i=0;show('qz');render()}else $('#dt').textContent+=' · Nenhum erro para refazer!'};
+$('#bk').onclick=()=>{renderLib();show('home')};
+renderLib();
+</script></body></html>
